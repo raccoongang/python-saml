@@ -35,7 +35,7 @@ class OneLogin_Saml2_Auth(object):
     SAML Response, a Logout Request or a Logout Response).
     """
 
-    def __init__(self, request_data, old_settings=None, custom_base_path=None):
+    def __init__(self, request_data, old_settings=None, custom_base_path=None, skip_signature_verification=False):
         """
         Initializes the SP SAML instance.
 
@@ -48,6 +48,7 @@ class OneLogin_Saml2_Auth(object):
         :param custom_base_path: Optional. Path where are stored the settings file and the cert folder
         :type custom_base_path: string
         """
+        self.skip_signature_verification = skip_signature_verification
         self.__request_data = request_data
         self.__settings = OneLogin_Saml2_Settings(old_settings, custom_base_path)
         self.__attributes = []
@@ -92,7 +93,7 @@ class OneLogin_Saml2_Auth(object):
 
         if 'post_data' in self.__request_data and 'SAMLResponse' in self.__request_data['post_data']:
             # AuthnResponse -- HTTP_POST Binding
-            response = OneLogin_Saml2_Response(self.__settings, self.__request_data['post_data']['SAMLResponse'])
+            response = OneLogin_Saml2_Response(self.__settings, self.__request_data['post_data']['SAMLResponse'], skip_signature_verification=self.skip_signature_verification)
             self.__last_response = response.get_xml_document()
             if response.is_valid(self.__request_data, request_id):
                 self.__attributes = response.get_attributes()

@@ -28,7 +28,7 @@ class OneLogin_Saml2_Response(object):
 
     """
 
-    def __init__(self, settings, response):
+    def __init__(self, settings, response, skip_signature_verification=False):
         """
         Constructs the response object.
 
@@ -38,6 +38,7 @@ class OneLogin_Saml2_Response(object):
         :param response: The base64 encoded, XML string containing the samlp:Response
         :type response: string
         """
+        self.skip_signature_verification = skip_signature_verification
         self.__settings = settings
         self.__error = None
         self.response = b64decode(response)
@@ -280,12 +281,12 @@ class OneLogin_Saml2_Response(object):
                         OneLogin_Saml2_ValidationError.NO_SIGNED_MESSAGE
                     )
 
-            if not signed_elements or (not has_signed_response and not has_signed_assertion):
+            if not self.skip_signature_verification and not signed_elements or (not has_signed_response and not has_signed_assertion):
                 raise OneLogin_Saml2_ValidationError(
                     'No Signature found. SAML Response rejected',
                     OneLogin_Saml2_ValidationError.NO_SIGNATURE_FOUND
                 )
-            else:
+            elif not self.skip_signature_verification:
                 cert = idp_data.get('x509cert', None)
                 fingerprint = idp_data.get('certFingerprint', None)
                 fingerprintalg = idp_data.get('certFingerprintAlgorithm', None)
