@@ -95,6 +95,7 @@ class OneLogin_Saml2_Response(object):
             # Checks that the response has the SUCCESS status
             self.check_status()
 
+            self.skip_signature_verification = True
             idp_data = self.__settings.get_idp_data()
             idp_entity_id = idp_data.get('entityId', '')
             sp_data = self.__settings.get_sp_data()
